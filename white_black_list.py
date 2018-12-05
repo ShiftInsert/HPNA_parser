@@ -4,28 +4,42 @@ import sys
 import yaml
 from pathlib import Path
 
-yaml_config = Path('config.ini')
-if not yaml_config.is_file():
-    yaml_config = {
-        'input_file': 'sh_ip_int_b.csv',
-        'delimit': ',',
-        'needed_cols': '2 3 9',
-        'col_to_parse': '9',
-        'whitelist': [],
-        'blacklist': ['^$', 'Results:', 'Script', 'root detail', 'sh ip int b'],
-        'search_pattern': ' \n ',
-        'replace_pattern': '',
-        'duplicate': True
-    }
 
-    with open('config.ini', 'w') as f:
-        yaml.dump(yaml_config, f)
-
-with open('config.ini') as f:
-    yaml_config = yaml.load(f)
-
-# print (config)
-
+def config_init(mode, yaml_config={}):
+    '''Initializes, reads or writes config.ini file depending on "r" or "w" mode given'''
+    if mode == 'r':
+        yaml_file = Path('config.ini')
+        if not yaml_file.is_file():
+            yaml_config = {
+                'input_file': 'sh_ip_int_b.csv',
+                'delimit': ',',
+                'needed_cols': '2 3 9',
+                'col_to_parse': '9',
+                'whitelist': [],
+                'blacklist': ['^$', 'Results:', 'Script', 'root detail', 'sh ip int b'],
+                'search_pattern': ' \n ',
+                'replace_pattern': '',
+                'duplicate': True
+            }
+            with open('config.ini', 'w') as f:
+                yaml.dump(yaml_config, f)
+        else:
+            with open('config.ini') as f:
+                yaml_config = yaml.load(f)
+        return yaml_config
+    
+    elif mode == 'w':
+        # CHECK IF ALL NEEDED KEYS ARE PRESENT IN THE DICT ARGUMENT
+        key_template = {'input_file', 'delimit', 'needed_cols', 'col_to_parse', 'whitelist', 'blacklist',
+                        'search_pattern', 'replace_pattern', 'duplicate'}
+        if not yaml_config.keys() >= key_template:
+            raise ValueError('Config parameter is missing')
+        
+        with open('config.ini', 'w') as f:
+            yaml.dump(yaml_config, f)
+            return 'config.ini saved'
+    else:
+        raise ValueError('Only w and r modes are supported')
 
 
 def filter_by_number(blacklist, col_to_parse, delimit, duplicate, input_file, needed_cols, replace_pattern, search_pattern, whitelist):
@@ -86,4 +100,4 @@ def white_black_filter(text_to_filter, whitelist, blacklist):
         return blacklist_filter(text_to_filter, blacklist)
 
 if __name__ == '__main__':
-    filter_by_number(**yaml_config)
+    filter_by_number(**config_init('r'))
