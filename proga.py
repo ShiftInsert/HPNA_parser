@@ -1,9 +1,10 @@
 import sys
-from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QGridLayout, QApplication, QPushButton, QComboBox, QMessageBox,\
-        QTextBrowser, QFileDialog, QPlainTextEdit
-from PyQt5.QtCore import QCoreApplication, QFile, Qt
+import yaml
+from pathlib import Path
+from PyQt5.QtWidgets import QWidget, QLineEdit, QGridLayout, QApplication, QPushButton, QFileDialog, QPlainTextEdit
+from PyQt5.QtCore import QCoreApplication, Qt
 
-from white_black_list import filter_by_number
+from white_black_list import filter_by_number, config_init
 
 
 class Example(QWidget):
@@ -11,65 +12,67 @@ class Example(QWidget):
         super().__init__()
         self.initUI()
 
+
     def initUI(self):
+        self.yaml_config=config_init('r')
 
-        # устнановка сетки
-        self.grid = QGridLayout()
-        self.grid.setSpacing(10)
-        self.setLayout(self.grid)
-
-        # установка окна
-        self.setGeometry(400, 300, 750, 300)
+        ''' Setting up grid, fields to enter data.
+            self.path           - path to file
+            self.neededcolumns  - collumns for parsed report
+            self.columnparse    - collumn to parse data
+            self.delimeter      - delimeter
+            self.blacklist      - blacklist
+            self.whitelist      - whitelist
+        '''
+        grid = QGridLayout()                                            # устнановка сетки
+        grid.setSpacing(10)
+        self.setLayout(grid)
+        self.setGeometry(400, 300, 750, 300)                            # установка окна
         self.setWindowTitle('CSV parser')
 
-        # подпись поля для пути к файлу
-        # self.hint = QLabel('Path to file')
-        # self.grid.addWidget(self.hint, 1, 0)
-        # путь к файлу
-        self.path = QLineEdit()
+        self.path = QLineEdit()                                         # путь к файлу
         self.path.setPlaceholderText("Path to file")
-        self.grid.addWidget(self.path, 0, 0, 1, 4)
-        # Needed columns
-        self.neededColumns = QLineEdit()
-        self.neededColumns.setPlaceholderText("Enter needed columns")
-        self.grid.addWidget(self.neededColumns, 2, 0)
-        # Column to parse
-        self.columnParse = QLineEdit()
-        self.columnParse.setPlaceholderText("Column to parse")
-        self.grid.addWidget(self.columnParse, 2, 1)
-        # Delimeter
-        self.delimeter = QLineEdit()
-        self.delimeter.setText(',')
+        self.path.setText(self.yaml_config['input_file'])
+        grid.addWidget(self.path,0,0,1,4)
+
+        self.neededcolumns = QLineEdit()                                # Needed columns
+        self.neededcolumns.setPlaceholderText("Enter needed columns")
+        self.neededcolumns.setText(self.yaml_config['needed_cols'])
+        grid.addWidget(self.neededcolumns, 2, 0)
+
+        self.columnparse = QLineEdit()                                  # Column to parse
+        self.columnparse.setPlaceholderText("Column to parse")
+        self.columnparse.setText(self.yaml_config['col_to_parse'])
+        grid.addWidget(self.columnparse, 2, 1)
+
+        self.delimeter = QLineEdit()                                    # Delimeter
         self.delimeter.setAlignment(Qt.AlignCenter)
-        self.grid.addWidget(self.delimeter, 2,2)
-        # Black list
-        self.blackList = QPlainTextEdit()
-        self.blackList.setPlaceholderText("Enter Regex expression for Black List")
-        self.grid.addWidget(self.blackList, 3,0,1,5)
-        # White list
-        self.whiteList = QPlainTextEdit()
-        self.whiteList.setPlaceholderText("Enter Regex expression for White List")
-        self.grid.addWidget(self.whiteList, 4, 0, 1, 5)
+        self.delimeter.setText(self.yaml_config['delimit'])
+        grid.addWidget(self.delimeter, 2, 2)
 
+        self.blacklist = QPlainTextEdit()                               # Black list
+        self.blacklist.setPlaceholderText("Enter Regex expression for Black List")
+        self.blacklist.setPlainText("\n".join(self.yaml_config['blacklist']))
+        grid.addWidget(self.blacklist, 3, 0, 1, 5)
 
-        # кнопка для открытия файла
-        btnOpen = QPushButton('Open', self)
-        self.grid.addWidget(btnOpen, 0, 4)
-        # connect procedure to button
-        btnOpen.clicked.connect(self.openFileNameDialog)
+        self.whitelist = QPlainTextEdit()                               # White list
+        self.whitelist.setPlaceholderText("Enter Regex expression for White List")
+        self.whitelist.setPlainText("\n".join(self.yaml_config['whitelist']))
+        grid.addWidget(self.whitelist, 4, 0, 1, 5)
 
-        # кнопка для запуска программы
-        self.btnRun = QPushButton('Run', self)
-        self.grid.addWidget(self.btnRun, 12, 3)
-        # connect procedure to button
-        self.btnRun.clicked.connect(self.parser)
+        self.btnopen = QPushButton('Open', self)                        # кнопка для открытия файла
+        grid.addWidget(self.btnopen, 0, 4)
+        self.btnopen.clicked.connect(self.openFileNameDialog)           # connect procedure to button
+
+        self.btnrun = QPushButton('Run', self)                          # кнопка для запуска программы
+        grid.addWidget(self.btnrun, 12, 3)
+        self.btnrun.clicked.connect(self.parser)                        # connect procedure to button
         if self.path.text() == '':
-            self.btnRun.setEnabled(False)
+            self.btnrun.setEnabled(False)
 
-        # exit button
-        btnExit = QPushButton('Exit', self)
-        self.grid.addWidget(btnExit, 12, 4)
-        btnExit.clicked.connect(QCoreApplication.instance().quit)
+        btnexit = QPushButton('Exit', self)                             # exit button
+        grid.addWidget(btnexit, 12, 4)
+        btnexit.clicked.connect(QCoreApplication.instance().quit)
 
         # self.show()
 
@@ -81,13 +84,22 @@ class Example(QWidget):
             self.fileName = filePath.split("/")[-1]
             print(self.fileName)
             self.path.setText(filePath)
-            # self.path = QLineEdit(filePath)
-            # self.grid.addWidget(self.path, 1, 1)
-            self.btnRun.setEnabled(True)
+            self.btnrun.setEnabled(True)
 
     def parser(self):
-        filter_by_number(input_file=self.path.text(), delimit=self.delimeter.text(), \
-                         needed_cols=self.neededColumns.text(), col_to_parse=self.columnParse.text())
+        self.yaml_config = {
+            'input_file': self.path.text(),
+            'delimit': self.delimeter.text(),
+            'needed_cols': self.neededcolumns.text(),
+            'col_to_parse': self.columnparse.text(),
+            'whitelist': self.whitelist.toPlainText().split('\n'),
+            'blacklist': self.blacklist.toPlainText().split('\n'),
+            'search_pattern': '',
+            'replace_pattern': '',
+            'duplicate': False
+        }
+        config_init('w', self.yaml_config)
+        filter_by_number(**self.yaml_config)
         print('Done')
 
 
@@ -96,5 +108,3 @@ if __name__ == '__main__':
     ex = Example()
     ex.show()
     sys.exit(app.exec_())
-
-    '''test upload'''
