@@ -1,6 +1,4 @@
 import sys
-import yaml
-from pathlib import Path
 from PyQt5.QtWidgets import QWidget, QLineEdit, QGridLayout, QApplication, QPushButton, QFileDialog, QPlainTextEdit
 from PyQt5.QtCore import QCoreApplication, Qt
 
