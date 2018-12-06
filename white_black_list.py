@@ -11,7 +11,7 @@ def config_init(mode, yaml_config={}):
         yaml_file = Path('config.ini')
         if not yaml_file.is_file():
             yaml_config = {
-                'input_file': 'sh_ip_int_b.csv',
+                'input_file': 'search_result_1.csv',
                 'delimit': ',',
                 'needed_cols': '2 3 9',
                 'col_to_parse': '9',
@@ -19,7 +19,7 @@ def config_init(mode, yaml_config={}):
                 'blacklist': ['^$', 'Results:', 'Script', 'root detail', 'sh ip int b'],
                 'search_pattern': ' \n ',
                 'replace_pattern': '',
-                'duplicate': True
+                'duplicate': False
             }
             with open('config.ini', 'w') as f:
                 yaml.dump(yaml_config, f)
@@ -79,13 +79,13 @@ def filter_by_number(blacklist, col_to_parse, delimit, duplicate, input_file, ne
 def whitelist_filter(line, whitelist = []):
     ''' filters the text chunk, keeping the lines satisfying any of the whitelist patterns
         !!!EMPTY WHITELIST DOES NOT FILTER ANYTHING AT ALL !!! '''
-    
     if any((True if re.search(pattern, line) else False for pattern in whitelist)):
         return line
     else:
         return ''
 
 def blacklist_filter(line, blacklist = []):
+    ''' filters the text chunk, removing the lines satisfying any of the blacklist patterns'''
     if not any((True if re.search(pattern, line) else False for pattern in blacklist)):
         return line
     else:
