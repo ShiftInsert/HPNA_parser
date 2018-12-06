@@ -7,6 +7,8 @@ from pathlib import Path
 
 def config_init(mode, yaml_config={}):
     '''Initializes, reads or writes config.ini file depending on "r" or "w" mode given'''
+    key_template = {'input_file', 'delimit', 'needed_cols', 'col_to_parse', 'whitelist', 'blacklist',
+                    'search_pattern', 'replace_pattern', 'duplicate'}
     if mode == 'r':
         yaml_file = Path('config.ini')
         if not yaml_file.is_file():
@@ -26,15 +28,18 @@ def config_init(mode, yaml_config={}):
         else:
             with open('config.ini') as f:
                 yaml_config = yaml.load(f)
-        return yaml_config
+        # CHECK IF ALL NEEDED KEYS ARE PRESENT IN THE DICT ARGUMENT
+        if yaml_config:
+            if not yaml_config.keys() >= key_template:
+                raise ValueError('Config parameter is missing')
+            return yaml_config
+        else:
+            raise ValueError('Incorrect/empty config file')
     
     elif mode == 'w':
         # CHECK IF ALL NEEDED KEYS ARE PRESENT IN THE DICT ARGUMENT
-        key_template = {'input_file', 'delimit', 'needed_cols', 'col_to_parse', 'whitelist', 'blacklist',
-                        'search_pattern', 'replace_pattern', 'duplicate'}
         if not yaml_config.keys() >= key_template:
             raise ValueError('Config parameter is missing')
-        
         with open('config.ini', 'w') as f:
             yaml.dump(yaml_config, f)
             return 'config.ini saved'
