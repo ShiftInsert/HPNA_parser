@@ -17,8 +17,8 @@ def config_init(mode, yaml_config={}):
                 'delimit': ',',
                 'needed_cols': '2 3 9',
                 'col_to_parse': '9',
-                'whitelist': [],
-                'blacklist': ['^$', 'Results:', 'Script', 'root detail', 'sh ip int b'],
+                'whitelist': ['Result'],
+                'blacklist': ['^$', 'Results:'],
                 'search_pattern': ' \n ',
                 'replace_pattern': '',
                 'duplicate': False
