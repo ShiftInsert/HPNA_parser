@@ -19,8 +19,8 @@ def config_init(mode, yaml_config={}):
                 'col_to_parse': '9',
                 'whitelist': ['Result'],
                 'blacklist': ['^$', 'Results:'],
-                'search_pattern': ' \n ',
-                'replace_pattern': '',
+                'search_pattern': ' +',
+                'replace_pattern': ' ',
                 'duplicate': False
             }
             with open('config.ini', 'w') as f:
@@ -31,20 +31,20 @@ def config_init(mode, yaml_config={}):
         # CHECK IF ALL NEEDED KEYS ARE PRESENT IN THE DICT ARGUMENT
         if yaml_config:
             if not yaml_config.keys() >= key_template:
-                raise ValueError('Config parameter is missing')
+                return '*** CONFIG FIELDS INCORRECT/MISSING ***'
             return yaml_config
         else:
-            raise ValueError('Incorrect/empty config file')
+            return '*** CORRUPT/EMPTY CONFIG FILE DETECTED ***'
     
     elif mode == 'w':
         # CHECK IF ALL NEEDED KEYS ARE PRESENT IN THE DICT ARGUMENT
         if not yaml_config.keys() >= key_template:
-            raise ValueError('Config parameter is missing')
+            return '*** CONFIG FIELDS INCORRECT/MISSING ***'
         with open('config.ini', 'w') as f:
             yaml.dump(yaml_config, f)
-            return 'config.ini saved'
+            return 'CONFIG.INI SAVED'
     else:
-        raise ValueError('Only w and r modes are supported')
+        raise ValueError('*** ONLY W AND R MODES SUPPORTED ***')
 
 
 def filter_by_number(blacklist, col_to_parse, delimit, duplicate, input_file, needed_cols, replace_pattern, search_pattern, whitelist):
