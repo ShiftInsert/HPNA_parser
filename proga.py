@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QLineEdit, QGridLayout, QApplication, QPushButton, QFileDialog, QPlainTextEdit, \
-    QLabel
+    QLabel, QCheckBox
 from PyQt5.QtCore import QCoreApplication, Qt
 from PyQt5.QtWidgets import QStatusBar
 
@@ -65,20 +65,27 @@ class Example(QWidget):
         font = self.neededcolumnsLabel.font()  
         font.setPointSize(self.font_size_s)  
         self.neededcolumnsLabel.setFont(font)  
+        # Delimiter label
+        self.delimeterLabel = QLabel(self)
+        self.delimeterLabel.setText('Delimiter:')
+        grid.addWidget(self.delimeterLabel, self.currentRow, 1)
+        font = self.delimeterLabel.font()
+        font.setPointSize(self.font_size_s)
+        self.delimeterLabel.setFont(font)
         # 'Column to parse' label
         self.columnparseLabel = QLabel(self)
         self.columnparseLabel.setText('Column to parse:')
         grid.addWidget(self.columnparseLabel, self.currentRow, 2)
-        font = self.columnparseLabel.font()  
-        font.setPointSize(self.font_size_s)  
-        self.columnparseLabel.setFont(font)  
-        # Delimiter label
-        self.delimeterLabel = QLabel(self)
-        self.delimeterLabel.setText('Delimiter:')
-        grid.addWidget(self.delimeterLabel, self.currentRow, 3)
-        font = self.delimeterLabel.font()  
-        font.setPointSize(self.font_size_s)  
-        self.delimeterLabel.setFont(font)  
+        font = self.columnparseLabel.font()
+        font.setPointSize(self.font_size_s)
+        self.columnparseLabel.setFont(font)
+        # 'Duplicate unparsed:' label
+        self.dupecheckLabel = QLabel(self)
+        self.dupecheckLabel.setText('Duplicate unparsed:')
+        grid.addWidget(self.dupecheckLabel, self.currentRow, 3)
+        font = self.dupecheckLabel.font()
+        font.setPointSize(self.font_size_s)
+        self.dupecheckLabel.setFont(font)
         self.currentRow += 1
         # Needed columns field
         self.neededcolumns = QLineEdit()
@@ -87,6 +94,14 @@ class Example(QWidget):
         font.setPointSize(self.font_size_m)  
         self.neededcolumns.setFont(font)  
         grid.addWidget(self.neededcolumns, self.currentRow, 0, 1, 1)
+        # Delimiter field
+        self.delimiter = QLineEdit()
+        self.delimiter.setPlaceholderText(",")
+        font = self.path.font()
+        font.setPointSize(self.font_size_m)
+        self.path.setFont(font)
+        self.delimiter.setAlignment(Qt.AlignCenter)
+        grid.addWidget(self.delimiter, self.currentRow, 1)
         # 'Column to parse' field
         self.columnparse = QLineEdit()
         self.columnparse.setPlaceholderText("9")
@@ -94,20 +109,17 @@ class Example(QWidget):
         font.setPointSize(self.font_size_m)  
         self.columnparse.setFont(font)  
         grid.addWidget(self.columnparse, self.currentRow, 2)
-        # Delimiter field
-        self.delimiter = QLineEdit()
-        self.delimiter.setPlaceholderText(",")
-        font = self.path.font()  
-        font.setPointSize(self.font_size_m)  
-        self.path.setFont(font)  
-        self.delimiter.setAlignment(Qt.AlignCenter)
-        grid.addWidget(self.delimiter, self.currentRow, 3)
+        # 'Duplicate unparsed:' field
+        self.dupecheck = QCheckBox('', self)
+        self.dupecheck.toggle()
+        self.dupecheck.stateChanged.connect(self.dupechecked)
+        grid.addWidget(self.dupecheck, self.currentRow, 3)
         self.currentRow += 1
         # White list label & field
         self.whitelistLabel = QLabel(self)
         self.whitelistLabel.setText(
             'Whitelist regex: (all lines with this content will stay, empty whitelist = all lines will stay)')
-        grid.addWidget(self.whitelistLabel, self.currentRow, 0)
+        grid.addWidget(self.whitelistLabel, self.currentRow, 0, 1, 2)
         font = self.whitelistLabel.font()  
         font.setPointSize(self.font_size_s)  
         self.whitelistLabel.setFont(font)
@@ -217,7 +229,14 @@ class Example(QWidget):
             self.path.setText(filePath)
             self.btnrun.setEnabled(True)
             self.statusbar.showMessage('READY')
-    
+
+    def dupechecked(self, state):
+        
+        if state == Qt.Checked:
+            self.dupechecked = True
+        else:
+            self.dupechecked = False
+            
     def parser(self):
         self.yaml_config = {
             'input_file': self.path.text(),
@@ -228,7 +247,7 @@ class Example(QWidget):
             'blacklist': self.blacklist.toPlainText().splitlines(),
             'search_pattern': self.search.toPlainText(),
             'replace_pattern': self.replace.toPlainText(),
-            'duplicate': False
+            'duplicate': self.dupechecked
         }
         self.statusbar.showMessage('SAVING CONFIG...')
         config_init('w', self.yaml_config)
