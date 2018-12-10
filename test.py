@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QGroupBox, QDialog, QVBoxLayout, \
-    QGridLayout
+    QGridLayout, QLabel
 # from PyQt5.QtGui import QIcon
 # from PyQt5.QtCore import pyqtSlot
 
@@ -31,22 +31,29 @@ class App(QDialog):
     def createGridLayout(self):
         self.horizontalGroupBox = QGroupBox("Grid")
         layout = QGridLayout()
-        layout.setColumnStretch(0, 4)
-        layout.setColumnStretch(1, 4)
-        layout.setColumnStretch(2, 4)
-        layout.setColumnStretch(3, 4)
-        
-        layout.addWidget(QPushButton('1'), 0, 0)
-        layout.addWidget(QPushButton('2'), 0, 1)
-        layout.addWidget(QPushButton('3'), 0, 2)
-        layout.addWidget(QPushButton('4'), 1, 0)
-        layout.addWidget(QPushButton('5'), 1, 1)
-        layout.addWidget(QPushButton('6'), 1, 2)
-        layout.addWidget(QPushButton('7'), 2, 0)
-        layout.addWidget(QPushButton('8'), 2, 1)
-        layout.addWidget(QPushButton('9'), 2, 2)
-        layout.addWidget(QPushButton('A'), 3, 0, 1, 2)
-        layout.addWidget(QPushButton('B'), 3, 2, 1, 2)
+        self.currentRow = 0
+        self.pathLabel = QLabel(self)
+        self.pathLabel.setText('Path to file:')
+        layout.addWidget(self.pathLabel, self.currentRow, 0, 1, 1)
+        self.currentRow += 1
+        layout.addWidget(QPushButton('1'), self.currentRow, 0)
+        layout.addWidget(QPushButton('2'), self.currentRow, 1)
+        layout.addWidget(QPushButton('3'), self.currentRow, 2)
+        self.currentRow += 1
+        layout.addWidget(QPushButton('4'), self.currentRow, 0)
+        layout.addWidget(QPushButton('5'), self.currentRow, 1)
+        layout.addWidget(QPushButton('6'), self.currentRow, 2)
+        self.currentRow += 1
+        layout.addWidget(QPushButton('4'), self.currentRow, 0)
+        layout.addWidget(QPushButton('5'), self.currentRow, 1)
+        layout.addWidget(QPushButton('6'), self.currentRow, 2)
+        self.currentRow += 1
+        layout.addWidget(QPushButton('7'), self.currentRow, 0)
+        layout.addWidget(QPushButton('8'), self.currentRow, 1)
+        layout.addWidget(QPushButton('9'), self.currentRow, 2)
+        self.currentRow += 1
+        layout.addWidget(QPushButton('A'), self.currentRow, 0, 1, 2)
+        layout.addWidget(QPushButton('B'), self.currentRow, 2, 1, 2)
         
         self.horizontalGroupBox.setLayout(layout)
 
