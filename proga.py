@@ -147,21 +147,23 @@ class Example(QWidget):
         self.blacklist.setFont(font)  
         grid.addWidget(self.blacklist, self.currentRow, 0, 1, 4)
         self.currentRow += 1
+
         # Search label
+        grid2 = QGridLayout()
         self.searchLabel = QLabel(self)
         self.searchLabel.setText('Search regex:')
-        grid.addWidget(self.searchLabel, self.currentRow, 0)
+        grid2.addWidget(self.searchLabel, 0, 0)
         font = self.searchLabel.font()  
         font.setPointSize(self.font_size_s)  
         self.searchLabel.setFont(font)
         # Replace label
         self.replaceLabel = QLabel(self)
         self.replaceLabel.setText('Replace regex:')
-        grid.addWidget(self.replaceLabel, self.currentRow, 2)
+        grid2.addWidget(self.replaceLabel, 0, 2)
         font = self.replaceLabel.font()
         font.setPointSize(self.font_size_s)
         self.replaceLabel.setFont(font)
-        self.currentRow += 1
+        #self.currentRow += 1
         # Search field
         self.search = QPlainTextEdit()
         self.search.setTabChangesFocus(True)
@@ -169,7 +171,7 @@ class Example(QWidget):
         font = self.search.font()  
         font.setPointSize(self.font_size_m)  
         self.search.setFont(font)  
-        grid.addWidget(self.search, self.currentRow, 0, 1, 2)
+        grid2.addWidget(self.search, 1, 0, 1, 2)
         # Replace field
         self.replace = QPlainTextEdit()
         self.replace.setTabChangesFocus(True)
@@ -177,8 +179,11 @@ class Example(QWidget):
         font = self.replace.font()  
         font.setPointSize(self.font_size_m)  
         self.replace.setFont(font)  
-        grid.addWidget(self.replace, self.currentRow, 2, 1, 2)
-        self.currentRow += 1
+        grid2.addWidget(self.replace, 1, 2, 1, 2)
+        grid.addLayout(grid2, self.currentRow, 0, 2, 4)
+
+        self.currentRow += 2
+
         # Run button
         self.btnrun = QPushButton('Run', self)
         self.btnrun.setFixedWidth(100)
