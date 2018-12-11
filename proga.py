@@ -1,9 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QLineEdit, QGridLayout, QApplication, QPushButton, QFileDialog, QPlainTextEdit, \
-    QLabel, QCheckBox
+    QLabel, QCheckBox, QStatusBar, QHBoxLayout
 from PyQt5.QtCore import QCoreApplication, Qt
-from PyQt5.QtWidgets import QStatusBar
-
 from white_black_list import filter_by_number, config_init
 
 
@@ -52,6 +50,7 @@ class Example(QWidget):
         grid.addWidget(self.path, self.currentRow, 0, 1, 3)
         # Open file button
         self.btnopen = QPushButton('Open', self)
+        self.btnopen.setFixedWidth(100)
         font = self.btnopen.font()  
         font.setPointSize(self.font_size_m)  
         self.btnopen.setFont(font)  
@@ -182,22 +181,33 @@ class Example(QWidget):
         self.currentRow += 1
         # Run button
         self.btnrun = QPushButton('Run', self)
+        self.btnrun.setFixedWidth(100)
         font = self.btnrun.font()  
         font.setPointSize(self.font_size_m)  
         self.btnrun.setFont(font)  
-        grid.addWidget(self.btnrun, self.currentRow, 2)
+        #grid.addWidget(self.btnrun, self.currentRow, 2)
         # connect procedure to button
         self.btnrun.clicked.connect(self.parser)
         if self.path.text() == '':
             self.btnrun.setEnabled(False)
         # Exit button
         self.btnexit = QPushButton('Exit', self)
-        font = self.btnexit.font()  
+        self.btnexit.setFixedWidth(100)
+        font = self.btnexit.font()
         font.setPointSize(self.font_size_m)  
         self.btnexit.setFont(font)  
-        grid.addWidget(self.btnexit, self.currentRow, 3)
+        #grid.addWidget(self.btnexit, self.currentRow, 3)
         self.btnexit.clicked.connect(QCoreApplication.instance().quit)
+        # creating additional box layout for buttons and put it in the grid
+        hboxbtns = QHBoxLayout()
+        hboxbtns.setSpacing(10)
+        hboxbtns.addStretch(1)
+        hboxbtns.addWidget(self.btnrun)
+        hboxbtns.addWidget(self.btnexit)
+        grid.addLayout(hboxbtns, self.currentRow, 2, 1, 2)
+        #grid.addItem(hboxbtns, self.currentRow, 2, 1, 2)
         self.currentRow += 1
+
         # Status bar
         self.statusbar = QStatusBar(self)
         self.statusbar.showMessage('READY')
