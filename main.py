@@ -1,8 +1,11 @@
 import sys
+import _collections_abc
 from PyQt5.QtWidgets import QWidget, QLineEdit, QGridLayout, QApplication, QPushButton, QFileDialog, QPlainTextEdit, \
     QLabel, QCheckBox, QStatusBar, QHBoxLayout
 from PyQt5.QtCore import QCoreApplication, Qt
-from white_black_list import filter_by_number, config_init
+from white_black_list import col_num_parser
+from config_rw import config_init
+from config_rw import config_w
 
 
 class Example(QWidget):
@@ -13,24 +16,21 @@ class Example(QWidget):
     def initUI(self):
         ''' Setting up grid, fields to enter data.
             self.path           - path to file
-            self.neededcolumns  - collumns for parsed report
-            self.columnparse    - collumn to parse data
+            self.neededcolumns  - columns for parsed report
+            self.columnparse    - column to parse data
             self.delimeter      - delimeter
             self.blacklist      - blacklist
             self.whitelist      - whitelist
             self.search         - search pattern
             self.replace        - replace pattern
         '''
+        self.yaml_config, self.status_message = config_init()
         self.font_size_m = 10
         self.font_size_s = 8
         self.currentRow = 0
         # Setting up the GUI grid
         grid = QGridLayout()
         grid.setSpacing(10)
-        grid.setColumnStretch(0, 4)
-        grid.setColumnStretch(1, 4)
-        grid.setColumnStretch(2, 4)
-        grid.setColumnStretch(3, 4)
         self.setLayout(grid)
         self.setGeometry(400, 300, 750, 300)  # установка окна
         self.setWindowTitle('CSV parser')
@@ -38,7 +38,7 @@ class Example(QWidget):
         self.pathLabel = QLabel(self)
         self.pathLabel.setText('Path to file:')
         grid.addWidget(self.pathLabel, self.currentRow, 0)
-        font = self.pathLabel.font()  
+        font = self.pathLabel.font()
         font.setPointSize(self.font_size_s)  
         self.pathLabel.setFont(font)  
         self.currentRow += 1
@@ -79,12 +79,12 @@ class Example(QWidget):
         font.setPointSize(self.font_size_s)
         self.columnparseLabel.setFont(font)
         # 'Duplicate unparsed:' label
-        self.dupecheckLabel = QLabel(self)
-        self.dupecheckLabel.setText('Duplicate unparsed:')
-        grid.addWidget(self.dupecheckLabel, self.currentRow, 3)
-        font = self.dupecheckLabel.font()
+        self.dupecheckboxLabel = QLabel(self)
+        self.dupecheckboxLabel.setText('Nijat mode:')
+        grid.addWidget(self.dupecheckboxLabel, self.currentRow, 3)
+        font = self.dupecheckboxLabel.font()
         font.setPointSize(self.font_size_s)
-        self.dupecheckLabel.setFont(font)
+        self.dupecheckboxLabel.setFont(font)
         self.currentRow += 1
         # Needed columns field
         self.neededcolumns = QLineEdit()
@@ -109,10 +109,10 @@ class Example(QWidget):
         self.columnparse.setFont(font)  
         grid.addWidget(self.columnparse, self.currentRow, 2)
         # 'Duplicate unparsed:' field
-        self.dupecheck = QCheckBox('', self)
-        self.dupecheck.toggle()
-        self.dupecheck.stateChanged.connect(self.dupechecked)
-        grid.addWidget(self.dupecheck, self.currentRow, 3)
+        self.dupecheckbox = QCheckBox('', self)
+        # self.dupecheckbox.toggle()
+        self.dupecheckbox.stateChanged.connect(self.do_dupecheck)
+        grid.addWidget(self.dupecheckbox, self.currentRow, 3)
         self.currentRow += 1
         # White list label & field
         self.whitelistLabel = QLabel(self)
@@ -187,14 +187,19 @@ class Example(QWidget):
         # Run button
         self.btnrun = QPushButton('Run', self)
         self.btnrun.setFixedWidth(100)
-        font = self.btnrun.font()  
-        font.setPointSize(self.font_size_m)  
-        self.btnrun.setFont(font)  
-        #grid.addWidget(self.btnrun, self.currentRow, 2)
+        font = self.btnrun.font()
+        font.setPointSize(self.font_size_m)
+        self.btnrun.setFont(font)
         # connect procedure to button
         self.btnrun.clicked.connect(self.parser)
-        if self.path.text() == '':
-            self.btnrun.setEnabled(False)
+        # Save button
+        self.btnsave = QPushButton('Save Config', self)
+        self.btnsave.setFixedWidth(150)
+        font = self.btnsave.font()
+        font.setPointSize(self.font_size_m)
+        self.btnsave.setFont(font)
+        # connect procedure to button
+        self.btnsave.clicked.connect(self.save_config)
         # Exit button
         self.btnexit = QPushButton('Exit', self)
         self.btnexit.setFixedWidth(100)
@@ -203,11 +208,13 @@ class Example(QWidget):
         self.btnexit.setFont(font)  
         #grid.addWidget(self.btnexit, self.currentRow, 3)
         self.btnexit.clicked.connect(QCoreApplication.instance().quit)
+        # self.btnexit.clicked.connect(self.exit_app)
         # creating additional box layout for buttons and put it in the grid
         hboxbtns = QHBoxLayout()
         hboxbtns.setSpacing(10)
         hboxbtns.addStretch(1)
         hboxbtns.addWidget(self.btnrun)
+        hboxbtns.addWidget(self.btnsave)
         hboxbtns.addWidget(self.btnexit)
         grid.addLayout(hboxbtns, self.currentRow, 2, 1, 2)
         #grid.addItem(hboxbtns, self.currentRow, 2, 1, 2)
@@ -215,44 +222,38 @@ class Example(QWidget):
 
         # Status bar
         self.statusbar = QStatusBar(self)
-        self.statusbar.showMessage('READY')
+        self.statusbar.showMessage(self.status_message)
         grid.addWidget(self.statusbar, self.currentRow, 0, 1, 4)
         
         # Initializing GUI fields from config.ini
-        self.yaml_config = config_init('r')
-        if isinstance(self.yaml_config, dict):
-            if self.yaml_config['input_file']:
-                self.path.setText(self.yaml_config['input_file'])
-                self.btnrun.setEnabled(True)
-            self.neededcolumns.setText(self.yaml_config['needed_cols'])
-            self.columnparse.setText(self.yaml_config['col_to_parse'])
-            self.delimiter.setText(self.yaml_config['delimit'])
-            self.whitelist.setPlainText("\n".join(self.yaml_config['whitelist']))
-            self.blacklist.setPlainText("\n".join(self.yaml_config['blacklist']))
-            self.search.setPlainText(self.yaml_config['search_pattern'])
-            self.replace.setPlainText(self.yaml_config['replace_pattern'])
-        else:
-            self.statusbar.showMessage(self.yaml_config)
-    
+        if self.yaml_config['input_file']:
+            self.path.setText(self.yaml_config['input_file'])
+        self.neededcolumns.setText(self.yaml_config['needed_cols'])
+        self.columnparse.setText(self.yaml_config['col_to_parse'])
+        self.delimiter.setText(self.yaml_config['delimit'])
+        self.whitelist.setPlainText("\n".join(self.yaml_config['whitelist']))
+        self.blacklist.setPlainText("\n".join(self.yaml_config['blacklist']))
+        self.search.setPlainText(self.yaml_config['search_pattern'])
+        self.replace.setPlainText(self.yaml_config['replace_pattern'])
+        self.dupecheckbox.setChecked(self.yaml_config['duplicate'])
+            
+        
     def openFileNameDialog(self):
         options = QFileDialog.Options()
         # options |= QFileDialog.DontUseNativeDialog
         filePath, _ = QFileDialog.getOpenFileName(self, "Open file to parse", "", "CSV file(*.csv)", options=options)
         if filePath:
             self.fileName = filePath.split("/")[-1]
-            print(self.fileName)
             self.path.setText(filePath)
-            self.btnrun.setEnabled(True)
             self.statusbar.showMessage('READY')
 
-    def dupechecked(self, state):
-        
+    def do_dupecheck(self, state):
         if state == Qt.Checked:
-            self.dupechecked = True
+            self.dupecheckstate = True
         else:
-            self.dupechecked = False
-            
-    def parser(self):
+            self.dupecheckstate = False
+
+    def save_config(self):
         self.yaml_config = {
             'input_file': self.path.text(),
             'delimit': self.delimiter.text(),
@@ -262,15 +263,16 @@ class Example(QWidget):
             'blacklist': self.blacklist.toPlainText().splitlines(),
             'search_pattern': self.search.toPlainText(),
             'replace_pattern': self.replace.toPlainText(),
-            'duplicate': self.dupechecked
+            'duplicate': self.dupecheckstate
         }
         self.statusbar.showMessage('SAVING CONFIG...')
-        config_init('w', self.yaml_config)
-        self.statusbar.showMessage('PARSING CSV...')
-        filter_by_number(**self.yaml_config)
-        self.statusbar.showMessage('JOB COMPLETE')
-        print('Done')
+        self.statusbar.showMessage(config_w(self.yaml_config))
 
+    def parser(self):
+        # save_config()
+        self.statusbar.showMessage('PARSING CSV...')
+        col_num_parser(**self.yaml_config)
+        self.statusbar.showMessage('JOB COMPLETE')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

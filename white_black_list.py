@@ -1,53 +1,8 @@
 import re
 import csv
-import sys
-import yaml
-from pathlib import Path
+import config_rw
 
-
-def config_init(mode, yaml_config={}):
-    '''Initializes, reads or writes config.ini file depending on "r" or "w" mode given'''
-    key_template = {'input_file', 'delimit', 'needed_cols', 'col_to_parse', 'whitelist', 'blacklist',
-                    'search_pattern', 'replace_pattern', 'duplicate'}
-    if mode == 'r':
-        yaml_file = Path('config.ini')
-        if not yaml_file.is_file():
-            yaml_config = {
-                'input_file': 'search_result_1.csv',
-                'delimit': ',',
-                'needed_cols': '2 3 9',
-                'col_to_parse': '9',
-                'whitelist': ['Result'],
-                'blacklist': ['^$', 'Results:'],
-                'search_pattern': ' +',
-                'replace_pattern': ' ',
-                'duplicate': False
-            }
-            with open('config.ini', 'w') as f:
-                yaml.dump(yaml_config, f)
-        else:
-            with open('config.ini') as f:
-                yaml_config = yaml.load(f)
-        # CHECK IF ALL NEEDED KEYS ARE PRESENT IN THE DICT ARGUMENT
-        if yaml_config:
-            if not yaml_config.keys() >= key_template:
-                return '*** CONFIG FIELDS INCORRECT/MISSING ***'
-            return yaml_config
-        else:
-            return '*** CORRUPT/EMPTY CONFIG FILE DETECTED ***'
-    
-    elif mode == 'w':
-        # CHECK IF ALL NEEDED KEYS ARE PRESENT IN THE DICT ARGUMENT
-        if not yaml_config.keys() >= key_template:
-            return '*** CONFIG FIELDS INCORRECT/MISSING ***'
-        with open('config.ini', 'w') as f:
-            yaml.dump(yaml_config, f)
-            return 'CONFIG.INI SAVED'
-    else:
-        raise ValueError('*** ONLY W AND R MODES SUPPORTED ***')
-
-
-def filter_by_number(blacklist, col_to_parse, delimit, duplicate, input_file, needed_cols, replace_pattern, search_pattern, whitelist):
+def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, needed_cols, replace_pattern, search_pattern, whitelist):
     needed_cols = needed_cols.split(' ')
     output_file = input_file.split('.')[0] + '_out.csv'
     
@@ -56,7 +11,6 @@ def filter_by_number(blacklist, col_to_parse, delimit, duplicate, input_file, ne
         writer = csv.writer(csv_output, quoting=csv.QUOTE_NONNUMERIC)
 
         for row in reader:
-            # print (row)
             new_row = []
             for index, cell_data in enumerate(row):
                 if str(index + 1) in needed_cols:
@@ -69,17 +23,18 @@ def filter_by_number(blacklist, col_to_parse, delimit, duplicate, input_file, ne
                         cell_data = parsed_cell_data.strip().replace(search_pattern, replace_pattern).strip()
                     new_row.append(cell_data)
 
-            if duplicate:
-                mapped_index = needed_cols.index(col_to_parse)
-                if len(new_row[mapped_index].splitlines()) > 1:
-                    for item in new_row[mapped_index].splitlines():
-                        new_line = []
-                        new_line.extend(line[:mapped_index])
-                        new_line.append(item)
-                        new_line.extend(line[mapped_index + 1:])
-                        writer.writerow(new_line)
-            else:
-                writer.writerow(new_row)
+            # if duplicate:
+            #     mapped_index = needed_cols.index(col_to_parse)
+            #     print (new_row[mapped_index].splitlines())
+            #     if len(new_row[mapped_index].splitlines()) > 1:
+            #         for item in new_row[mapped_index].splitlines():
+            #             new_line = []
+            #             new_line.extend(line[:mapped_index])
+            #             new_line.append(item)
+            #             new_line.extend(line[mapped_index + 1:])
+            #             writer.writerow(new_line)
+            # else:
+            #     writer.writerow(new_row)
 
 def whitelist_filter(line, whitelist = []):
     ''' filters the text chunk, keeping the lines satisfying any of the whitelist patterns
@@ -105,4 +60,4 @@ def white_black_filter(text_to_filter, whitelist, blacklist):
         return blacklist_filter(text_to_filter, blacklist)
 
 if __name__ == '__main__':
-    filter_by_number(**config_init('r'))
+    col_num_parser(**config_rw.config_init()['config'])
