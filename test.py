@@ -1,7 +1,8 @@
 a = [1, 1]
-def foo(list):
-    list[1] = 10
-    return list
+
+def foo(b):
+    b[1] = 10
+    return b
 
 print ('a = ', a)
 x = foo(a)

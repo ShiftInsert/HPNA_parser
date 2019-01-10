@@ -235,7 +235,11 @@ class Example(QWidget):
         self.blacklist.setPlainText("\n".join(self.yaml_config['blacklist']))
         self.search.setPlainText(self.yaml_config['search_pattern'])
         self.replace.setPlainText(self.yaml_config['replace_pattern'])
-        self.dupecheckbox.setChecked(self.yaml_config['duplicate'])
+        if self.yaml_config['duplicate']:
+            self.dupecheckbox.setChecked(True)
+        else:
+            self.dupecheckbox.setChecked(False)
+
             
         
     def openFileNameDialog(self):
@@ -268,7 +272,17 @@ class Example(QWidget):
         self.statusbar.showMessage(config_w(self.yaml_config))
 
     def parser(self):
-        # save_config()
+        self.yaml_config = {
+            'input_file': self.path.text(),
+            'delimit': self.delimiter.text(),
+            'needed_cols': self.neededcolumns.text(),
+            'col_to_parse': self.columnparse.text(),
+            'whitelist': self.whitelist.toPlainText().splitlines(),
+            'blacklist': self.blacklist.toPlainText().splitlines(),
+            'search_pattern': self.search.toPlainText(),
+            'replace_pattern': self.replace.toPlainText(),
+            'duplicate': self.dupecheckstate
+        }
         self.statusbar.showMessage('PARSING CSV...')
         col_num_parser(**self.yaml_config)
         self.statusbar.showMessage('JOB COMPLETE')

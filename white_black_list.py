@@ -3,6 +3,7 @@ import csv
 import config_rw
 
 def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, needed_cols, replace_pattern, search_pattern, whitelist):
+    print('entered col_num_parser()')
     needed_cols = needed_cols.split(' ')
     output_file = input_file.split('.')[0] + '_out.csv'
     
@@ -35,10 +36,12 @@ def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, need
             #             writer.writerow(new_line)
             # else:
             #     writer.writerow(new_row)
+            writer.writerow(new_row)
 
 def whitelist_filter(line, whitelist = []):
     ''' filters the text chunk, keeping the lines satisfying any of the whitelist patterns
         !!!EMPTY WHITELIST DOES NOT FILTER ANYTHING AT ALL !!! '''
+    print('entered whitelist_filter()')
     if any((True if re.search(pattern, line) else False for pattern in whitelist)):
         return line
     else:
@@ -46,12 +49,14 @@ def whitelist_filter(line, whitelist = []):
 
 def blacklist_filter(line, blacklist = []):
     ''' filters the text chunk, removing the lines satisfying any of the blacklist patterns'''
+    print('entered blacklist_filter()')
     if not any((True if re.search(pattern, line) else False for pattern in blacklist)):
         return line
     else:
         return ''
 
 def white_black_filter(text_to_filter, whitelist, blacklist):
+    print('white_black_filter')
     if whitelist and blacklist:
         return blacklist_filter(whitelist_filter(text_to_filter, whitelist), blacklist)
     elif whitelist:
@@ -60,4 +65,4 @@ def white_black_filter(text_to_filter, whitelist, blacklist):
         return blacklist_filter(text_to_filter, blacklist)
 
 if __name__ == '__main__':
-    col_num_parser(**config_rw.config_init()['config'])
+    col_num_parser(**config_rw.config_init()[0])

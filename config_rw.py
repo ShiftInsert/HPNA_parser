@@ -3,19 +3,21 @@ import _collections_abc
 from os import stat
 from pathlib import Path
 
+yaml_hardcode = {
+    'input_file': 'show_vlan_br.csv',
+    'delimit': ',',
+    'needed_cols': '2 3 9',
+    'col_to_parse': '9',
+    'whitelist': ['Result'],
+    'blacklist': ['^$', 'Results:'],
+    'search_pattern': ' +',
+    'replace_pattern': ' ',
+    'duplicate': False
+}
+
 def config_init():
+    print ('entered config_init')
     '''Initializes or reads config.ini file'''
-    yaml_hardcode = {
-        'input_file': 'show_vlan_br.csv',
-        'delimit': ',',
-        'needed_cols': '2 3 9',
-        'col_to_parse': '9',
-        'whitelist': ['Result'],
-        'blacklist': ['^$', 'Results:'],
-        'search_pattern': ' +',
-        'replace_pattern': ' ',
-        'duplicate': False
-    }
     yaml_file = Path('config.ini')
     status_message = 'CONFIG LOADED'
     # check for absent or empty file and reinitialize the file and dictionary if needed
@@ -26,7 +28,7 @@ def config_init():
     with open('config.ini') as f:
         yaml_config = yaml.load(f)
         
-    # check if yaml_config is a dict and all needed keys are present in the dict argument and and reinitialize the file and dictionary if needed
+    # check if yaml_config is a dict and all needed keys are present in the dict argument and reinitialize the file and dictionary if needed
     if not isinstance(yaml_config, _collections_abc.Mapping) or not yaml_config.keys() >= yaml_hardcode.keys():
         status_message = '*** CORRUPT CONFIG, REGENERATED ***'
         with open('config.ini', 'w') as f:
@@ -37,17 +39,7 @@ def config_init():
     return yaml_config, status_message
 
 def config_w(yaml_config):
-    yaml_hardcode = {
-        'input_file': 'search_result_1.csv',
-        'delimit': ',',
-        'needed_cols': '2 3 9',
-        'col_to_parse': '9',
-        'whitelist': ['Result'],
-        'blacklist': ['^$', 'Results:'],
-        'search_pattern': ' +',
-        'replace_pattern': ' ',
-        'duplicate': False
-    }
+    print('entered config_w')
     # CHECK IF ALL NEEDED KEYS ARE PRESENT IN THE DICT ARGUMENT
     if not yaml_config.keys() >= yaml_hardcode.keys():
         status_message = '*** CONFIG KEYS INCORRECT/MISSING ***'
