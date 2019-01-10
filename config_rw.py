@@ -18,7 +18,7 @@ def config_init():
     }
     yaml_file = Path('config.ini')
     status_message = 'CONFIG LOADED'
-    # Check for absent or empty file and reinitialize the file and dictionary if needed
+    # check for absent or empty file and reinitialize the file and dictionary if needed
     if not yaml_file.is_file() or stat('config.ini').st_size == 0:
         status_message = '*** ABSENT OR ZERO LENGTH CONFIG, REGENERATED ***'
         with open('config.ini', 'w') as f:
@@ -26,7 +26,7 @@ def config_init():
     with open('config.ini') as f:
         yaml_config = yaml.load(f)
         
-    # check if yaml_config is a dict and all needed keys are present in the dict argument
+    # check if yaml_config is a dict and all needed keys are present in the dict argument and and reinitialize the file and dictionary if needed
     if not isinstance(yaml_config, _collections_abc.Mapping) or not yaml_config.keys() >= yaml_hardcode.keys():
         status_message = '*** CORRUPT CONFIG, REGENERATED ***'
         with open('config.ini', 'w') as f:

@@ -25,6 +25,7 @@ class Example(QWidget):
             self.replace        - replace pattern
         '''
         self.yaml_config, self.status_message = config_init()
+        self.dupecheckstate = self.yaml_config['duplicate']
         self.font_size_m = 10
         self.font_size_s = 8
         self.currentRow = 0
@@ -127,7 +128,7 @@ class Example(QWidget):
         self.whitelist.setTabChangesFocus(True)
         self.whitelist.setPlaceholderText("Examples:\nResult")
         font = self.whitelist.font()  
-        font.setPointSize(self.font_size_m)  
+        font.setPointSize( self.font_size_m)
         self.whitelist.setFont(font)  
         grid.addWidget(self.whitelist, self.currentRow, 0, 1, 4)
         self.currentRow += 1
@@ -181,7 +182,6 @@ class Example(QWidget):
         self.replace.setFont(font)  
         grid2.addWidget(self.replace, 1, 2, 1, 2)
         grid.addLayout(grid2, self.currentRow, 0, 2, 4)
-
         self.currentRow += 2
 
         # Run button
@@ -240,7 +240,6 @@ class Example(QWidget):
         
     def openFileNameDialog(self):
         options = QFileDialog.Options()
-        # options |= QFileDialog.DontUseNativeDialog
         filePath, _ = QFileDialog.getOpenFileName(self, "Open file to parse", "", "CSV file(*.csv)", options=options)
         if filePath:
             self.fileName = filePath.split("/")[-1]
