@@ -239,8 +239,6 @@ class Example(QWidget):
             self.dupecheckbox.setChecked(True)
         else:
             self.dupecheckbox.setChecked(False)
-
-            
         
     def openFileNameDialog(self):
         options = QFileDialog.Options()

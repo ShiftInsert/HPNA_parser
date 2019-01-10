@@ -16,7 +16,6 @@ yaml_hardcode = {
 }
 
 def config_init():
-    print ('entered config_init')
     '''Initializes or reads config.ini file'''
     yaml_file = Path('config.ini')
     status_message = 'CONFIG LOADED'
@@ -39,7 +38,6 @@ def config_init():
     return yaml_config, status_message
 
 def config_w(yaml_config):
-    print('entered config_w')
     # CHECK IF ALL NEEDED KEYS ARE PRESENT IN THE DICT ARGUMENT
     if not yaml_config.keys() >= yaml_hardcode.keys():
         status_message = '*** CONFIG KEYS INCORRECT/MISSING ***'
