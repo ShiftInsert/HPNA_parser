@@ -4,7 +4,6 @@ import config_rw
 import sys
 
 def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, needed_cols, replace_pattern, search_pattern, whitelist):
-    print('entered col_num_parser()')
     needed_cols = needed_cols.split(' ')
     output_file = input_file.split('.')[0] + '_out.csv'
     
