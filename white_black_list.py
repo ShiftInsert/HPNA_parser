@@ -27,7 +27,7 @@ def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, need
                                     parsed_cell_data = parsed_cell_data + "\n" + line
                             cell_data = parsed_cell_data.strip().replace(search_pattern, replace_pattern).strip()
                         new_row.append(cell_data)
-                    
+                # Nijat mode code
                 if duplicate:
                     mapped_index = needed_cols.index(col_to_parse)
                     try:

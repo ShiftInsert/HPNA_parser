@@ -1,8 +1,8 @@
 import sys
-import _collections_abc
+import subprocess
 from PyQt5.QtWidgets import QWidget, QLineEdit, QGridLayout, QApplication, QPushButton, QFileDialog, QPlainTextEdit, \
     QLabel, QCheckBox, QStatusBar, QHBoxLayout
-from PyQt5.QtCore import QCoreApplication, Qt
+from PyQt5.QtCore import QCoreApplication, Qt, QTimer
 from white_black_list import col_num_parser
 from config_rw import config_init
 from config_rw import config_w
@@ -192,6 +192,14 @@ class Example(QWidget):
         self.btnrun.setFont(font)
         # connect procedure to button
         self.btnrun.clicked.connect(self.parser)
+        # Show button
+        self.btnshow = QPushButton('Show Result', self)
+        self.btnshow.setFixedWidth(150)
+        font = self.btnshow.font()
+        font.setPointSize(self.font_size_m)
+        self.btnshow.setFont(font)
+        # connect procedure to button
+        self.btnshow.clicked.connect(self.show_result)
         # Save button
         self.btnsave = QPushButton('Save Config', self)
         self.btnsave.setFixedWidth(150)
@@ -214,6 +222,7 @@ class Example(QWidget):
         hboxbtns.setSpacing(10)
         hboxbtns.addStretch(1)
         hboxbtns.addWidget(self.btnrun)
+        hboxbtns.addWidget(self.btnshow)
         hboxbtns.addWidget(self.btnsave)
         hboxbtns.addWidget(self.btnexit)
         grid.addLayout(hboxbtns, self.currentRow, 2, 1, 2)
@@ -268,6 +277,11 @@ class Example(QWidget):
         }
         self.statusbar.showMessage('SAVING CONFIG...')
         self.statusbar.showMessage(config_w(self.yaml_config))
+        
+    def show_result(self):
+        # print (self.path.text().split('.')[0] + '_out.csv')
+        self.statusbar.showMessage('SHOWING RESULT')
+        subprocess.Popen([self.path.text().split('.')[0] + '_out.csv'], shell=True)
 
     def parser(self):
         self.yaml_config = {
