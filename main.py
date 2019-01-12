@@ -3,7 +3,7 @@ import os.path
 import subprocess
 from PyQt5.QtWidgets import QWidget, QLineEdit, QGridLayout, QApplication, QPushButton, QFileDialog, QPlainTextEdit, \
     QLabel, QCheckBox, QStatusBar, QHBoxLayout
-from PyQt5.QtCore import QCoreApplication, Qt, QTimer
+from PyQt5.QtCore import QCoreApplication, Qt
 from white_black_list import col_num_parser
 from config_rw import config_init
 from config_rw import config_w
@@ -149,7 +149,6 @@ class Example(QWidget):
         self.blacklist.setFont(font)  
         grid.addWidget(self.blacklist, self.currentRow, 0, 1, 4)
         self.currentRow += 1
-
         # Search label
         grid2 = QGridLayout()
         self.searchLabel = QLabel(self)
@@ -184,7 +183,6 @@ class Example(QWidget):
         grid2.addWidget(self.replace, 1, 2, 1, 2)
         grid.addLayout(grid2, self.currentRow, 0, 2, 4)
         self.currentRow += 2
-
         # Run button
         self.btnrun = QPushButton('Run', self)
         self.btnrun.setFixedWidth(100)
@@ -229,7 +227,6 @@ class Example(QWidget):
         grid.addLayout(hboxbtns, self.currentRow, 2, 1, 2)
         #grid.addItem(hboxbtns, self.currentRow, 2, 1, 2)
         self.currentRow += 1
-
         # Status bar
         self.statusbar = QStatusBar(self)
         self.statusbar.showMessage(self.status_message)

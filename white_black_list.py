@@ -11,7 +11,7 @@ def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, need
         reader = csv.reader(csv_input, delimiter = delimit)
         writer = csv.writer(csv_output, quoting=csv.QUOTE_NONNUMERIC)
         
-        for row in reader:
+        for counter, row in enumerate(reader):
             if row:
                 new_row = []
                 # take each cell in the current row and see if stays and needs to be parsed
@@ -40,9 +40,9 @@ def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, need
                             new_line.extend(new_row[:mapped_index])
                             new_line.append(item)
                             new_line.extend(new_row[mapped_index + 1:])
-                            writer.writerow(new_line)
-                else:
-                    writer.writerow(new_row)
+                            new_row = new_line
+                writer.writerow(new_row)
+
 
 def whitelist_filter(line, whitelist = []):
     ''' filters the text chunk, keeping the lines satisfying any of the whitelist patterns
