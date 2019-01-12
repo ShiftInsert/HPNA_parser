@@ -1,4 +1,5 @@
 import sys
+import os.path
 import subprocess
 from PyQt5.QtWidgets import QWidget, QLineEdit, QGridLayout, QApplication, QPushButton, QFileDialog, QPlainTextEdit, \
     QLabel, QCheckBox, QStatusBar, QHBoxLayout
@@ -26,8 +27,8 @@ class Example(QWidget):
         '''
         self.yaml_config, self.status_message = config_init()
         self.dupecheckstate = self.yaml_config['duplicate']
-        self.font_size_m = 10
-        self.font_size_s = 8
+        self.font_size_m = 12
+        self.font_size_s = 10
         self.currentRow = 0
         # Setting up the GUI grid
         grid = QGridLayout()
@@ -126,7 +127,7 @@ class Example(QWidget):
         self.currentRow += 1
         self.whitelist = QPlainTextEdit()
         self.whitelist.setTabChangesFocus(True)
-        self.whitelist.setPlaceholderText("Examples:\nResult")
+        self.whitelist.setPlaceholderText("empty")
         font = self.whitelist.font()  
         font.setPointSize( self.font_size_m)
         self.whitelist.setFont(font)  
@@ -142,7 +143,7 @@ class Example(QWidget):
         self.currentRow += 1
         self.blacklist = QPlainTextEdit()
         self.blacklist.setTabChangesFocus(True)
-        self.blacklist.setPlaceholderText("Examples:\n^$\nResults:")
+        self.blacklist.setPlaceholderText("empty")
         font = self.blacklist.font()  
         font.setPointSize(self.font_size_m)  
         self.blacklist.setFont(font)  
@@ -168,7 +169,7 @@ class Example(QWidget):
         # Search field
         self.search = QPlainTextEdit()
         self.search.setTabChangesFocus(True)
-        self.search.setPlaceholderText("!!!!")
+        self.search.setPlaceholderText("empty")
         font = self.search.font()  
         font.setPointSize(self.font_size_m)  
         self.search.setFont(font)  
@@ -176,7 +177,7 @@ class Example(QWidget):
         # Replace field
         self.replace = QPlainTextEdit()
         self.replace.setTabChangesFocus(True)
-        self.replace.setPlaceholderText("????")
+        self.replace.setPlaceholderText("empty")
         font = self.replace.font()  
         font.setPointSize(self.font_size_m)  
         self.replace.setFont(font)  
@@ -279,10 +280,12 @@ class Example(QWidget):
         self.statusbar.showMessage(config_w(self.yaml_config))
         
     def show_result(self):
-        # print (self.path.text().split('.')[0] + '_out.csv')
-        self.statusbar.showMessage('SHOWING RESULT')
-        subprocess.Popen([self.path.text().split('.')[0] + '_out.csv'], shell=True)
-
+        if os.path.isfile(self.path.text()):
+            self.statusbar.showMessage('SHOWING RESULT')
+            subprocess.Popen([self.path.text().split('.')[0] + '_out.csv'], shell=True)
+        else:
+            self.statusbar.showMessage('*** FILE NOT FOUND ***')
+            
     def parser(self):
         self.yaml_config = {
             'input_file': self.path.text(),
@@ -295,9 +298,12 @@ class Example(QWidget):
             'replace_pattern': self.replace.toPlainText(),
             'duplicate': self.dupecheckstate
         }
-        self.statusbar.showMessage('PARSING CSV...')
-        col_num_parser(**self.yaml_config)
-        self.statusbar.showMessage('JOB COMPLETE')
+        if os.path.isfile(self.path.text()):
+            self.statusbar.showMessage('PARSING CSV...')
+            col_num_parser(**self.yaml_config)
+            self.statusbar.showMessage('JOB COMPLETE')
+        else:
+            self.statusbar.showMessage('*** FILE NOT FOUND ***')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

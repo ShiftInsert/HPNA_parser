@@ -25,7 +25,7 @@ def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, need
                                 line = white_black_filter(line, whitelist, blacklist)
                                 if line:
                                     parsed_cell_data = parsed_cell_data + "\n" + line
-                            cell_data = parsed_cell_data.strip().replace(search_pattern, replace_pattern).strip()
+                            cell_data = re.sub(search_pattern, replace_pattern, parsed_cell_data.strip()).strip()
                         new_row.append(cell_data)
                 # Nijat mode code
                 if duplicate:
@@ -47,7 +47,6 @@ def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, need
 def whitelist_filter(line, whitelist = []):
     ''' filters the text chunk, keeping the lines satisfying any of the whitelist patterns
         !!!EMPTY WHITELIST DOES NOT FILTER ANYTHING AT ALL !!! '''
-    # print('entered whitelist_filter()')
     if any((True if re.search(pattern, line) else False for pattern in whitelist)):
         return line
     else:
@@ -55,14 +54,12 @@ def whitelist_filter(line, whitelist = []):
 
 def blacklist_filter(line, blacklist = []):
     ''' filters the text chunk, removing the lines satisfying any of the blacklist patterns'''
-    # print('entered blacklist_filter()')
     if not any((True if re.search(pattern, line) else False for pattern in blacklist)):
         return line
     else:
         return ''
 
 def white_black_filter(text_to_filter, whitelist, blacklist):
-    # print('entered white_black_filter()')
     if whitelist and blacklist:
         return blacklist_filter(whitelist_filter(text_to_filter, whitelist), blacklist)
     elif whitelist:

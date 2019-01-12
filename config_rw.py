@@ -26,7 +26,7 @@ def config_init():
             yaml.dump(yaml_hardcode, f)
     with open('config.ini') as f:
         yaml_config = yaml.load(f)
-        
+
     # check if yaml_config is a dict and all needed keys are present in the dict argument and reinitialize the file and dictionary if needed
     if not isinstance(yaml_config, _collections_abc.Mapping) or not yaml_config.keys() >= yaml_hardcode.keys():
         status_message = '*** CORRUPT CONFIG, REGENERATED ***'
