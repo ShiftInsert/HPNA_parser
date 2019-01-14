@@ -299,6 +299,7 @@ class Example(QWidget):
             self.statusbar.showMessage('PARSING CSV...')
             col_num_parser(**self.yaml_config)
             self.statusbar.showMessage('JOB COMPLETE')
+            self.show_result()
         else:
             self.statusbar.showMessage('*** FILE NOT FOUND ***')
 
