@@ -273,8 +273,10 @@ class Example(QWidget):
             'replace_pattern': self.replace.toPlainText(),
             'duplicate': self.dupecheckstate
         }
-        self.statusbar.showMessage('SAVING CONFIG...')
-        self.statusbar.showMessage(config_w(self.yaml_config))
+        temp_check_write_access = self.check_write_access('config.ini')
+        if temp_check_write_access:
+            self.statusbar.showMessage('SAVING CONFIG...')
+            self.statusbar.showMessage(config_w(self.yaml_config))
         
     def show_result(self):
         if os.path.isfile(self.path.text()):
@@ -282,7 +284,16 @@ class Example(QWidget):
             subprocess.Popen([self.path.text().split('.')[0] + '_out.csv'], shell=True)
         else:
             self.statusbar.showMessage('*** FILE NOT FOUND ***')
-            
+
+    def check_write_access(self, f):
+        if os.path.exists(f):
+            try:
+                os.rename(f, f)
+                return True
+            except PermissionError:
+                self.statusbar.showMessage('*** FILE <' + f.split("\\")[-1] + '> IS LOCKED BY ANOTHER PROCESS, WRITE FAILED ***')
+                return False
+
     def parser(self):
         self.yaml_config = {
             'input_file': self.path.text(),
@@ -296,10 +307,12 @@ class Example(QWidget):
             'duplicate': self.dupecheckstate
         }
         if os.path.isfile(self.path.text()):
-            self.statusbar.showMessage('PARSING CSV...')
-            col_num_parser(**self.yaml_config)
-            self.statusbar.showMessage('JOB COMPLETE')
-            self.show_result()
+            temp_check_write_access = self.check_write_access(self.path.text().split('.')[0] + '_out.csv')
+            if temp_check_write_access:
+                self.statusbar.showMessage('PARSING CSV...')
+                col_num_parser(**self.yaml_config)
+                self.statusbar.showMessage('JOB COMPLETE')
+                self.show_result()
         else:
             self.statusbar.showMessage('*** FILE NOT FOUND ***')
 
