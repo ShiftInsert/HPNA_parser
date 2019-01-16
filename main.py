@@ -277,22 +277,25 @@ class Example(QWidget):
         if temp_check_write_access:
             self.statusbar.showMessage('SAVING CONFIG...')
             self.statusbar.showMessage(config_w(self.yaml_config))
-        
-    def show_result(self):
-        if os.path.isfile(self.path.text()):
-            self.statusbar.showMessage('SHOWING RESULT')
-            subprocess.Popen([self.path.text().split('.')[0] + '_out.csv'], shell=True)
-        else:
-            self.statusbar.showMessage('*** FILE NOT FOUND ***')
 
     def check_write_access(self, f):
-        if os.path.exists(f):
-            try:
-                os.rename(f, f)
-                return True
-            except PermissionError:
-                self.statusbar.showMessage('*** FILE <' + f.split("\\")[-1] + '> IS LOCKED BY ANOTHER PROCESS, WRITE FAILED ***')
-                return False
+        try:
+            os.rename(f, f)
+            return True
+        except PermissionError:
+            return False
+
+    
+    def show_result(self):
+        temp_outfile = self.path.text().split('.csv')[0] + '_out.csv'
+        if os.path.isfile(temp_outfile):
+            if self.check_write_access(temp_outfile):
+                self.statusbar.showMessage('SHOWING RESULT')
+                subprocess.Popen([temp_outfile], shell=True)
+            else:
+                self.statusbar.showMessage('*** OUTPUT FILE ALREADY OPENED ***')
+        else:
+            self.statusbar.showMessage('*** FILE NOT FOUND ***')
 
     def parser(self):
         self.yaml_config = {
@@ -306,15 +309,19 @@ class Example(QWidget):
             'replace_pattern': self.replace.toPlainText(),
             'duplicate': self.dupecheckstate
         }
+        temp_outfile = self.path.text().split('.csv')[0] + '_out.csv'
         if os.path.isfile(self.path.text()):
-            temp_check_write_access = self.check_write_access(self.path.text().split('.')[0] + '_out.csv')
-            if temp_check_write_access:
-                self.statusbar.showMessage('PARSING CSV...')
-                col_num_parser(**self.yaml_config)
-                self.statusbar.showMessage('JOB COMPLETE')
-                self.show_result()
+            if os.path.isfile(temp_outfile):
+                write_acc_granted = self.check_write_access(temp_outfile)
+                if not write_acc_granted:
+                    self.statusbar.showMessage('*** ' + temp_outfile.upper() + ' IS USED BY ANOTHER PROCESS, WRITE FAILED ***')
+                    return
+            self.statusbar.showMessage('PARSING CSV...')
+            col_num_parser(**self.yaml_config)
+            self.statusbar.showMessage('JOB COMPLETE')
+            self.show_result()
         else:
-            self.statusbar.showMessage('*** FILE NOT FOUND ***')
+            self.statusbar.showMessage('*** SOURCE FILE NOT FOUND ***')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

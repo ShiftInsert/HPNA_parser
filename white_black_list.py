@@ -40,8 +40,11 @@ def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, need
                             new_line.extend(new_row[:mapped_index])
                             new_line.append(item)
                             new_line.extend(new_row[mapped_index + 1:])
-                            new_row = new_line
-                writer.writerow(new_row)
+                            writer.writerow(new_line)
+                    else:
+                        writer.writerow(new_row)
+                else:
+                    writer.writerow(new_row)
 
 
 def whitelist_filter(line, whitelist = []):
