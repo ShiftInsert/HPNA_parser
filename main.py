@@ -98,9 +98,9 @@ class Example(QWidget):
         # Delimiter field
         self.delimiter = QLineEdit()
         self.delimiter.setPlaceholderText(",")
-        font = self.path.font()
+        font = self.delimiter.font()
         font.setPointSize(self.font_size_m)
-        self.path.setFont(font)
+        self.delimiter.setFont(font)
         self.delimiter.setAlignment(Qt.AlignCenter)
         grid.addWidget(self.delimiter, self.currentRow, 1)
         # 'Column to parse' field
@@ -309,6 +309,7 @@ class Example(QWidget):
             'replace_pattern': self.replace.toPlainText(),
             'duplicate': self.dupecheckstate
         }
+        self.save_config()
         temp_outfile = self.path.text().split('.csv')[0] + '_out.csv'
         if os.path.isfile(self.path.text()):
             if os.path.isfile(temp_outfile):
