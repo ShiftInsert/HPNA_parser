@@ -4,7 +4,12 @@ import config_rw
 import sys
 
 def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, needed_cols, replace_pattern, search_pattern, whitelist):
-    needed_cols = needed_cols.split(' ')
+    print('Entered col_num_parser')
+    const_columns = 'A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC AD AE AF AG AH AI AJ AK AL AM AN AO AP AQ AR AS AT AU AV AW AX AY AZ'.split(' ')
+    col_to_parse = const_columns.index(col_to_parse.upper())
+    print('Needed_cols = ', needed_cols)
+    needed_cols = [const_columns.index(temp_col.upper()) for temp_col in needed_cols.split(' ')]
+    print ('Needed_cols = ', needed_cols, 'col_to_parse = ', col_to_parse)
     output_file = input_file.split('.')[0] + '_out.csv'
     
     with open(input_file, 'r') as csv_input, open(output_file, 'w', newline='') as csv_output:
@@ -16,10 +21,12 @@ def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, need
                 new_row = []
                 # take each cell in the current row and see if stays and needs to be parsed
                 for index, cell_data in enumerate(row):
+                    print (index, cell_data)
                     # if current cell index is in "Needed columns" - this cell stays or is parsed later
-                    if str(index + 1) in needed_cols:
+                    if index in needed_cols:
                         # if current cell index is in "Column to parse" - this cell is parsed and run through filters
-                        if str(index + 1) in col_to_parse:
+                        if index == col_to_parse:
+                            print (index, ' is in needed_col and col_to_parse')
                             parsed_cell_data = ''
                             for line in cell_data.splitlines():
                                 line = white_black_filter(line, whitelist, blacklist)

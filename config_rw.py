@@ -6,12 +6,12 @@ from pathlib import Path
 yaml_hardcode = {
     'input_file': 'show_vlan_br.csv',
     'delimit': ',',
-    'needed_cols': '2 3 9',
-    'col_to_parse': '9',
+    'needed_cols': 'C I',
+    'col_to_parse': 'I',
     'whitelist': ['Result'],
-    'blacklist': ['^$', 'Results:'],
-    'search_pattern': ' +',
-    'replace_pattern': ' ',
+    'blacklist': ['Results:'],
+    'search_pattern': '',
+    'replace_pattern': '',
     'duplicate': False
 }
 

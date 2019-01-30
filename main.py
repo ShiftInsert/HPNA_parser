@@ -90,7 +90,7 @@ class Example(QWidget):
         self.currentRow += 1
         # Needed columns field
         self.neededcolumns = QLineEdit()
-        self.neededcolumns.setPlaceholderText("2 3 9")
+        self.neededcolumns.setPlaceholderText("B C I")
         font = self.neededcolumns.font()  
         font.setPointSize(self.font_size_m)  
         self.neededcolumns.setFont(font)  
@@ -105,7 +105,7 @@ class Example(QWidget):
         grid.addWidget(self.delimiter, self.currentRow, 1)
         # 'Column to parse' field
         self.columnparse = QLineEdit()
-        self.columnparse.setPlaceholderText("9")
+        self.columnparse.setPlaceholderText("I")
         font = self.columnparse.font()  
         font.setPointSize(self.font_size_m)  
         self.columnparse.setFont(font)  
