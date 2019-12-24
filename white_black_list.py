@@ -17,23 +17,31 @@ def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, need
         writer = csv.writer(csv_output, quoting=csv.QUOTE_NONNUMERIC)
         
         for counter, row in enumerate(reader):
+            # print("entered for loop")
             if row:
+                if len(row) <= col_to_parse:
+                    return "!!! COLUMN INDEX OUT OF BOUNDS, {} OUT OF {}, CHECK THE SOURCE FILE !!!".format(col_to_parse, len(row))
+                print(row)
                 new_row = []
-                # take each cell in the current row and see if stays and needs to be parsed
+                # take each cell in the current row and see if it stays and needs to be parsed
                 for index, cell_data in enumerate(row):
-                    print (index, cell_data)
+                    print (index, cell_data, col_to_parse)
                     # if current cell index is in "Needed columns" - this cell stays or is parsed later
                     if index in needed_cols:
                         # if current cell index is in "Column to parse" - this cell is parsed and run through filters
                         if index == col_to_parse:
-                            print (index, ' is in needed_col and col_to_parse')
                             parsed_cell_data = ''
                             for line in cell_data.splitlines():
+                                print("line before white_black_filter\n" + line)
                                 line = white_black_filter(line, whitelist, blacklist)
+                                print("line after white_black_filter\n" + line)
                                 if line:
                                     parsed_cell_data = parsed_cell_data + "\n" + line
+                            # print (">>>" + parsed_cell_data + ">>>")
                             cell_data = re.sub(search_pattern, replace_pattern, parsed_cell_data.strip()).strip()
+                            # print("|||" + cell_data + "|||")
                         new_row.append(cell_data)
+                # multisearch / multireplace
                 # Nijat mode code
                 if duplicate:
                     mapped_index = needed_cols.index(col_to_parse)

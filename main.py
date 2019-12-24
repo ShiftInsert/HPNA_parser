@@ -58,6 +58,14 @@ class Example(QWidget):
         self.btnopen.setFont(font)  
         grid.addWidget(self.btnopen, self.currentRow, 3)
         self.btnopen.clicked.connect(self.openFileNameDialog)  # connect procedure to button
+        # Show file button
+        self.btnopen = QPushButton('Open', self)
+        self.btnopen.setFixedWidth(100)
+        font = self.btnopen.font()
+        font.setPointSize(self.font_size_m)
+        self.btnopen.setFont(font)
+        grid.addWidget(self.btnopen, self.currentRow, 3)
+        self.btnopen.clicked.connect(self.openFileNameDialog)  # connect procedure to button
         self.currentRow += 1
         # Needed columns label
         self.neededcolumnsLabel = QLabel(self)
@@ -293,9 +301,9 @@ class Example(QWidget):
                 self.statusbar.showMessage('SHOWING RESULT')
                 subprocess.Popen([temp_outfile], shell=True)
             else:
-                self.statusbar.showMessage('*** OUTPUT FILE ALREADY OPENED ***')
+                self.statusbar.showMessage('!!! OUTPUT FILE ALREADY OPENED !!!')
         else:
-            self.statusbar.showMessage('*** FILE NOT FOUND ***')
+            self.statusbar.showMessage('!!! FILE NOT FOUND !!!')
 
     def parser(self):
         self.yaml_config = {
@@ -310,19 +318,25 @@ class Example(QWidget):
             'duplicate': self.dupecheckstate
         }
         self.save_config()
+        if self.columnparse.text() not in self.neededcolumns.text().split(' '):
+            self.statusbar.showMessage('!!! WRONG COLUMN TO PARSE !!!')
+            return
         temp_outfile = self.path.text().split('.csv')[0] + '_out.csv'
         if os.path.isfile(self.path.text()):
             if os.path.isfile(temp_outfile):
                 write_acc_granted = self.check_write_access(temp_outfile)
                 if not write_acc_granted:
-                    self.statusbar.showMessage('*** ' + temp_outfile.upper() + ' IS USED BY ANOTHER PROCESS, WRITE FAILED ***')
+                    self.statusbar.showMessage('!!! ' + temp_outfile.upper() + ' IS USED BY ANOTHER PROCESS, WRITE FAILED !!!')
                     return
             self.statusbar.showMessage('PARSING CSV...')
-            col_num_parser(**self.yaml_config)
+            parser_message = col_num_parser(**self.yaml_config)
+            if parser_message:
+                self.statusbar.showMessage(parser_message)
+                return
             self.statusbar.showMessage('JOB COMPLETE')
             self.show_result()
         else:
-            self.statusbar.showMessage('*** SOURCE FILE NOT FOUND ***')
+            self.statusbar.showMessage('!!! SOURCE FILE NOT FOUND !!!')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
