@@ -2,14 +2,13 @@ import re
 import csv
 import config_rw
 import sys
+import ctypes
+csv.field_size_limit(int(ctypes.c_ulong(-1).value // 2))
 
 def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, needed_cols, replace_pattern, search_pattern, whitelist):
-    print('Entered col_num_parser')
     const_columns = 'A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC AD AE AF AG AH AI AJ AK AL AM AN AO AP AQ AR AS AT AU AV AW AX AY AZ'.split(' ')
     col_to_parse = const_columns.index(col_to_parse.upper())
-    print('Needed_cols = ', needed_cols)
     needed_cols = [const_columns.index(temp_col.upper()) for temp_col in needed_cols.split(' ')]
-    print ('Needed_cols = ', needed_cols, 'col_to_parse = ', col_to_parse)
     output_file = input_file.split('.')[0] + '_out.csv'
     
     with open(input_file, 'r') as csv_input, open(output_file, 'w', newline='') as csv_output:
@@ -17,32 +16,21 @@ def col_num_parser(blacklist, col_to_parse, delimit, duplicate, input_file, need
         writer = csv.writer(csv_output, quoting=csv.QUOTE_NONNUMERIC)
         
         for counter, row in enumerate(reader):
-            # print("entered for loop")
             if row:
                 if len(row) <= col_to_parse:
                     return "!!! COLUMN INDEX OUT OF BOUNDS, {} OUT OF {}, CHECK THE SOURCE FILE !!!".format(col_to_parse, len(row))
-                print(row)
                 new_row = []
-                # take each cell in the current row and see if it stays and needs to be parsed
                 for index, cell_data in enumerate(row):
-                    print (index, cell_data, col_to_parse)
-                    # if current cell index is in "Needed columns" - this cell stays or is parsed later
                     if index in needed_cols:
-                        # if current cell index is in "Column to parse" - this cell is parsed and run through filters
                         if index == col_to_parse:
                             parsed_cell_data = ''
                             for line in cell_data.splitlines():
-                                print("line before white_black_filter\n" + line)
                                 line = white_black_filter(line, whitelist, blacklist)
-                                print("line after white_black_filter\n" + line)
                                 if line:
                                     parsed_cell_data = parsed_cell_data + "\n" + line
-                            # print (">>>" + parsed_cell_data + ">>>")
                             cell_data = re.sub(search_pattern, replace_pattern, parsed_cell_data.strip()).strip()
-                            # print("|||" + cell_data + "|||")
                         new_row.append(cell_data)
-                # multisearch / multireplace
-                # Nijat mode code
+                # Nijat mode code - every parsed line will be paired with a device name
                 if duplicate:
                     mapped_index = needed_cols.index(col_to_parse)
                     try:
