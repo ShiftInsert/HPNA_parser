@@ -1,4 +1,5 @@
 import sys
+import time
 import os.path
 import subprocess
 from PyQt5.QtWidgets import QWidget, QLineEdit, QGridLayout, QApplication, QPushButton, QFileDialog, QPlainTextEdit, \
@@ -90,7 +91,7 @@ class Example(QWidget):
         self.columnparseLabel.setFont(font)
         # 'Duplicate unparsed:' label
         self.dupecheckboxLabel = QLabel(self)
-        self.dupecheckboxLabel.setText('Nijat mode:')
+        self.dupecheckboxLabel.setText('Repeat mode')
         grid.addWidget(self.dupecheckboxLabel, self.currentRow, 3)
         font = self.dupecheckboxLabel.font()
         font.setPointSize(self.font_size_s)
@@ -127,7 +128,7 @@ class Example(QWidget):
         # White list label & field
         self.whitelistLabel = QLabel(self)
         self.whitelistLabel.setText(
-            'Whitelist regex: (all lines with this content will stay, empty whitelist = all lines will stay)')
+            'Whitelist regex: (all lines with this content will stay, .* = all lines will stay)')
         grid.addWidget(self.whitelistLabel, self.currentRow, 0, 1, 2)
         font = self.whitelistLabel.font()  
         font.setPointSize(self.font_size_s)  
@@ -167,7 +168,7 @@ class Example(QWidget):
         self.searchLabel.setFont(font)
         # Replace label
         self.replaceLabel = QLabel(self)
-        self.replaceLabel.setText('Replace regex:')
+        self.replaceLabel.setText('Replace regex: (to replace to nothing press Enter in the replace line)')
         grid2.addWidget(self.replaceLabel, 0, 2)
         font = self.replaceLabel.font()
         font.setPointSize(self.font_size_s)
@@ -285,6 +286,7 @@ class Example(QWidget):
         if temp_check_write_access:
             self.statusbar.showMessage('SAVING CONFIG...')
             self.statusbar.showMessage(config_w(self.yaml_config))
+        print(self.path.text())
 
     def check_write_access(self, f):
         try:
@@ -298,8 +300,17 @@ class Example(QWidget):
         temp_outfile = self.path.text().split('.csv')[0] + '_out.csv'
         if os.path.isfile(temp_outfile):
             if self.check_write_access(temp_outfile):
-                self.statusbar.showMessage('SHOWING RESULT')
                 subprocess.Popen([temp_outfile], shell=True)
+                self.statusbar.showMessage('SHOWING RESULT')
+                # self.statusbar.showMessage('DONE')
+                # while True:
+                #     if self.check_write_access():
+                #         self.statusbar.showMessage('STILL OPENING')
+                #         time.sleep(1)
+                #     else:
+                #         self.statusbar.showMessage('DONE')
+                #         break
+
             else:
                 self.statusbar.showMessage('!!! OUTPUT FILE ALREADY OPENED !!!')
         else:
