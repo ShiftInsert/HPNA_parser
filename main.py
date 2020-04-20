@@ -3,12 +3,12 @@ import time
 import os.path
 import subprocess
 from PyQt5.QtWidgets import QWidget, QLineEdit, QGridLayout, QApplication, QPushButton, QFileDialog, QPlainTextEdit, \
-    QLabel, QCheckBox, QStatusBar, QHBoxLayout
+    QLabel, QCheckBox, QStatusBar, QHBoxLayout, QToolTip
 from PyQt5.QtCore import QCoreApplication, Qt
+from PyQt5.QtGui import QFont
 from white_black_list import col_num_parser
 from config_rw import config_init
 from config_rw import config_w
-
 
 class Example(QWidget):
     def __init__(self):
@@ -26,6 +26,7 @@ class Example(QWidget):
             self.search         - search pattern
             self.replace        - replace pattern
         '''
+        QToolTip.setFont(QFont('Consolas', 12))
         self.yaml_config, self.status_message = config_init()
         self.dupecheckstate = self.yaml_config['duplicate']
         self.font_size_m = 12
@@ -46,6 +47,8 @@ class Example(QWidget):
         self.pathLabel.setFont(font)  
         self.currentRow += 1
         self.path = QLineEdit()
+        self.path.setToolTip("Either a full path to the source file, e.g.:\nC:\Downloads\MY PROJECTS\VLAN CLEANUP\\test.csv\nor just a file name if it's in the same folder with this .exe:\ntest.csv")
+        self.path.setToolTipDuration(60000)
         self.path.setPlaceholderText("Path to source file:")
         font = self.path.font()  
         font.setPointSize(self.font_size_m)  
@@ -104,6 +107,8 @@ class Example(QWidget):
         font.setPointSize(self.font_size_m)  
         self.neededcolumns.setFont(font)  
         grid.addWidget(self.neededcolumns, self.currentRow, 0, 1, 1)
+        self.neededcolumns.setToolTip("Enter column names that you want to leave, space separated.\nFor HPNA report it's usually C for switch name and I for script output, so:\nC I")
+        self.neededcolumns.setToolTipDuration(60000)
         # Delimiter field
         self.delimiter = QLineEdit()
         self.delimiter.setPlaceholderText(",")
@@ -112,6 +117,8 @@ class Example(QWidget):
         self.delimiter.setFont(font)
         self.delimiter.setAlignment(Qt.AlignCenter)
         grid.addWidget(self.delimiter, self.currentRow, 1)
+        self.delimiter.setToolTip("Enter delimiter used in the source file\nHPNA reports are comma separated, so:\n,")
+        self.delimiter.setToolTipDuration(60000)
         # 'Column to parse' field
         self.columnparse = QLineEdit()
         self.columnparse.setPlaceholderText("I")
@@ -119,16 +126,20 @@ class Example(QWidget):
         font.setPointSize(self.font_size_m)  
         self.columnparse.setFont(font)  
         grid.addWidget(self.columnparse, self.currentRow, 2)
+        self.columnparse.setToolTip("Enter column name with the HPNA script output for each switch\nUsually it's \"I\" column, so:\nI")
+        self.columnparse.setToolTipDuration(60000)
         # 'Duplicate unparsed:' field
         self.dupecheckbox = QCheckBox('', self)
         # self.dupecheckbox.toggle()
         self.dupecheckbox.stateChanged.connect(self.do_dupecheck)
         grid.addWidget(self.dupecheckbox, self.currentRow, 3)
+        self.dupecheckbox.setToolTip("Repeat switch name for each line that stays in the output")
+        self.dupecheckbox.setToolTipDuration(60000)
         self.currentRow += 1
         # White list label & field
         self.whitelistLabel = QLabel(self)
         self.whitelistLabel.setText(
-            'Whitelist regex: (all lines with this content will stay, .* = all lines will stay)')
+            'Whitelist regex: (all lines with this content will stay)')
         grid.addWidget(self.whitelistLabel, self.currentRow, 0, 1, 2)
         font = self.whitelistLabel.font()  
         font.setPointSize(self.font_size_s)  
@@ -141,6 +152,8 @@ class Example(QWidget):
         font.setPointSize( self.font_size_m)
         self.whitelist.setFont(font)  
         grid.addWidget(self.whitelist, self.currentRow, 0, 1, 4)
+        self.whitelist.setToolTip("Each line should have a separate regex, e.g.:\nResult\nARPA\n[C|c]onnected\nAny line that contains ANY of those regexes will stay\nRegex .* will keep all lines")
+        self.whitelist.setToolTipDuration(60000)
         self.currentRow += 1
         # Black list label & field
         self.blacklistLabel = QLabel(self)
@@ -157,6 +170,8 @@ class Example(QWidget):
         font.setPointSize(self.font_size_m)  
         self.blacklist.setFont(font)  
         grid.addWidget(self.blacklist, self.currentRow, 0, 1, 4)
+        self.blacklist.setToolTip("Each line should have a separate regex, e.g.:\nResults:\n#\n[N|n]otconnect\nAny line that contains ANY of those regexes will be removed\nBlacklist is done on whitelist results, and may remove them!")
+        self.blacklist.setToolTipDuration(60000)
         self.currentRow += 1
         # Search label
         grid2 = QGridLayout()
@@ -182,6 +197,8 @@ class Example(QWidget):
         font.setPointSize(self.font_size_m)  
         self.search.setFont(font)  
         grid2.addWidget(self.search, 1, 0, 1, 2)
+        self.search.setToolTip("Each line should have a separate regex, e.g.:\nVlan:\n-+\n[D|d]ate\nEach search line MUST have a paired replace line.")
+        self.search.setToolTipDuration(60000)
         # Replace field
         self.replace = QPlainTextEdit()
         self.replace.setTabChangesFocus(True)
@@ -190,6 +207,8 @@ class Example(QWidget):
         font.setPointSize(self.font_size_m)  
         self.replace.setFont(font)  
         grid2.addWidget(self.replace, 1, 2, 1, 2)
+        self.replace.setToolTip("Each line MUST have a separate regex paired with every search line, e.g.:\nVLAN:\n\ndate\nTo replace to nothing - use an empty string by pressing Enter.")
+        self.replace.setToolTipDuration(60000)
         grid.addLayout(grid2, self.currentRow, 0, 2, 4)
         self.currentRow += 2
         # Run button
