@@ -166,11 +166,11 @@ class Example(QWidget):
         self.blacklist = QPlainTextEdit()
         self.blacklist.setTabChangesFocus(True)
         self.blacklist.setPlaceholderText("empty")
-        font = self.blacklist.font()  
-        font.setPointSize(self.font_size_m)  
-        self.blacklist.setFont(font)  
+        font = self.blacklist.font()
+        font.setPointSize(self.font_size_m)
+        self.blacklist.setFont(font)
         grid.addWidget(self.blacklist, self.currentRow, 0, 1, 4)
-        self.blacklist.setToolTip("Each line should have a separate regex, e.g.:\nResults:\n#\n[N|n]otconnect\nAny line that contains ANY of those regexes will be removed\nBlacklist is done on whitelist results, and may remove them!")
+        self.blacklist.setToolTip("Each line should have a separate regex, e.g.:\nResults:\n#\n[N|n]otconnect\nAny line that contains ANY of those regexes will be removed\nBlacklist is applied to whitelist results and may remove them!")
         self.blacklist.setToolTipDuration(60000)
         self.currentRow += 1
         # Search label
